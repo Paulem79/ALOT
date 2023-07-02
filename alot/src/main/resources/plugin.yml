@@ -1,0 +1,16 @@
+name: ALOT
+main: fr.paulem.alot.ALOT
+version: 1.0
+author: Paulem
+website: https://linktr.ee/paulem
+description: A Lot Of Things
+api-version: 1.17
+softdepend:
+  - ProtocolLib
+commands:
+  alot:
+    description: ALOT's commands
+    usage: /alot [reload/rl]
+    permission: alot.admin
+    aliases:
+      - alotofthings
