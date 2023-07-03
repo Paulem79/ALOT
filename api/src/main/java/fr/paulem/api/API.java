@@ -6,6 +6,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -19,6 +20,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class API {
+    public static void registerEvents(JavaPlugin plugin, Listener listener){
+        plugin.getServer().getPluginManager().registerEvents(listener, plugin);
+    }
+
     /**
      * Launch a ItemStack, return true if the item touch the ground / an Entity
      * @param plugin the plugin

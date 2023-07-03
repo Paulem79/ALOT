@@ -50,6 +50,7 @@ import static fr.paulem.alot.blocks.LandMine.newLandMine;
 import static fr.paulem.alot.libs.functions.LibRadius.isTherePlayerNearby;
 import static fr.paulem.alot.libs.radios.LibVersion.getVersion;
 import static fr.paulem.alot.listeners.ListenerHealthDisplay.healthBar;
+import static fr.paulem.api.API.registerEvents;
 
 public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
     public List<LandMine> landMines = new ArrayList<>();
@@ -71,12 +72,12 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
     @Override
     public void onEnable(){
         reloadConfig();
-        registerEvents(new ListenerPloof(this));
-        registerEvents(new ListenerHealthDisplay(this));
-        registerEvents(new ListenerBlood(this));
-        registerEvents(new GUIAddedItems(this));
-        registerEvents(new ListenerItemSwap(this));
-        registerEvents(this);
+        registerEvents(this, new ListenerPloof(this));
+        registerEvents(this, new ListenerHealthDisplay(this));
+        registerEvents(this, new ListenerBlood(this));
+        registerEvents(this, new GUIAddedItems(this));
+        registerEvents(this, new ListenerItemSwap(this));
+        registerEvents(this, this);
 
         Objects.requireNonNull(getCommand("alot")).setExecutor(new CommandALOT(this));
         Objects.requireNonNull(getCommand("alot")).setTabCompleter(new TabCommandALOT(this));
@@ -127,10 +128,6 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
     @Override
     public void onDisable(){
         getLogger().info("Plugin deactivated !");
-    }
-
-    public void registerEvents(Listener listener){
-        getServer().getPluginManager().registerEvents(listener, this);
     }
 
     @EventHandler
