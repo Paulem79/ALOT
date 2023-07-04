@@ -1,8 +1,8 @@
 package fr.paulem.alot.item;
 
 import fr.paulem.alot.ALOT;
-import fr.paulem.alot.libs.classes.CondensedCraft;
-import fr.paulem.alot.libs.classes.CListener;
+import fr.paulem.api.libs.classes.CondensedCraft;
+import fr.paulem.alot.CListener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 

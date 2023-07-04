@@ -4,8 +4,8 @@ import fr.paulem.alot.ALOT;
 import fr.paulem.alot.item.items.SwitchBow;
 import fr.paulem.alot.item.items.TNTBow;
 import fr.paulem.alot.item.items.TNTLandMine;
-import fr.paulem.alot.libs.classes.CondensedCraft;
-import fr.paulem.alot.libs.classes.CMain;
+import fr.paulem.api.libs.classes.CondensedCraft;
+import fr.paulem.alot.CMain;
 import org.bukkit.inventory.ShapedRecipe;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package fr.paulem.alot.libs.functions;
+package fr.paulem.api.libs.functions;
 
 import org.bukkit.Location;
 import org.bukkit.World;

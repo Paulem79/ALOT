@@ -1,6 +1,4 @@
-package fr.paulem.alot.libs.classes;
-
-import fr.paulem.alot.ALOT;
+package fr.paulem.alot;
 
 public class CMain {
     public ALOT main;

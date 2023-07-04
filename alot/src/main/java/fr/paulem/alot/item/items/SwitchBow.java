@@ -13,7 +13,6 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("deprecation")
 public class SwitchBow extends CustomItem {
     public SwitchBow(ALOT main) {
         super(main);

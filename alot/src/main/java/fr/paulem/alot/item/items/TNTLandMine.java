@@ -13,7 +13,6 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("deprecation")
 public class TNTLandMine extends CustomItem {
 
     public TNTLandMine(ALOT main) {

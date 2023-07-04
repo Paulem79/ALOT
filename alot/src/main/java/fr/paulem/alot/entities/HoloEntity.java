@@ -1,6 +1,7 @@
-package fr.paulem.alot.libs.classes;
+package fr.paulem.alot.entities;
 
 import fr.paulem.alot.ALOT;
+import fr.paulem.alot.CMain;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.PistonMoveReaction;

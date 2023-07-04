@@ -43,7 +43,6 @@
 
     <build>
         <directory>../target</directory> <!-- Build it one level up, because it is the one we care about -->
-        <finalName>ALOT</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

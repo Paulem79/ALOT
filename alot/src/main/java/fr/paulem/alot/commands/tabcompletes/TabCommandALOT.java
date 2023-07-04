@@ -1,7 +1,7 @@
 package fr.paulem.alot.commands.tabcompletes;
 
 import fr.paulem.alot.ALOT;
-import fr.paulem.alot.libs.classes.CMain;
+import fr.paulem.alot.CMain;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

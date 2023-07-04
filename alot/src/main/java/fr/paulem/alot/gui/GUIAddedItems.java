@@ -1,7 +1,7 @@
 package fr.paulem.alot.gui;
 
 import fr.paulem.alot.ALOT;
-import fr.paulem.alot.libs.classes.CListener;
+import fr.paulem.alot.CListener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

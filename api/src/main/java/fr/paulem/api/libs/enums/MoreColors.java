@@ -1,14 +1,14 @@
-package fr.paulem.alot.libs.enums;
+package fr.paulem.api.libs.enums;
 
 import net.md_5.bungee.api.ChatColor;
 
-import static fr.paulem.alot.ALOT.bukkitVersion;
+import static fr.paulem.api.libs.radios.LibVersion.getVersion;
 
 public enum MoreColors {;
     final ChatColor color;
 
     MoreColors(ChatColor color, ChatColor elseColor) {
-        this.color = bukkitVersion.minor() >= 16 ? color : elseColor;
+        this.color = getVersion(VersionMethod.BUKKIT).minor() >= 16 ? color : elseColor;
     }
 
     public ChatColor getColor() {

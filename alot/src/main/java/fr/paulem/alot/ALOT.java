@@ -7,16 +7,14 @@ import fr.paulem.alot.commands.CommandALOT;
 import fr.paulem.alot.commands.tabcompletes.TabCommandALOT;
 import fr.paulem.alot.gui.GUIAddedItems;
 import fr.paulem.alot.item.Handler;
-import fr.paulem.alot.libs.classes.CondensedCraft;
-import fr.paulem.alot.libs.enums.VersionMethod;
-import fr.paulem.alot.libs.functions.LibDamage;
-import fr.paulem.alot.libs.functions.LibOther;
-import fr.paulem.alot.libs.functions.LibRadius;
-import fr.paulem.alot.libs.radios.LibVersion;
 import fr.paulem.alot.listeners.ListenerBlood;
 import fr.paulem.alot.listeners.ListenerHealthDisplay;
 import fr.paulem.alot.listeners.ListenerItemSwap;
 import fr.paulem.alot.listeners.ListenerPloof;
+import fr.paulem.api.libs.classes.CondensedCraft;
+import fr.paulem.api.libs.enums.VersionMethod;
+import fr.paulem.api.libs.functions.LibRadius;
+import fr.paulem.api.libs.radios.LibVersion;
 import fr.paulem.nms_v16.Main;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -33,7 +31,6 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -47,10 +44,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static fr.paulem.alot.blocks.LandMine.newLandMine;
-import static fr.paulem.alot.libs.functions.LibRadius.isTherePlayerNearby;
-import static fr.paulem.alot.libs.radios.LibVersion.getVersion;
 import static fr.paulem.alot.listeners.ListenerHealthDisplay.healthBar;
 import static fr.paulem.api.API.registerEvents;
+import static fr.paulem.api.libs.functions.LibDamage.*;
+import static fr.paulem.api.libs.functions.LibOther.RandomBtw;
+import static fr.paulem.api.libs.functions.LibRadius.isTherePlayerNearby;
+import static fr.paulem.api.libs.radios.LibVersion.getVersion;
 
 public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
     public List<LandMine> landMines = new ArrayList<>();
@@ -62,8 +61,6 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
     public HashMap<NamespacedKey, ItemStack> registeredItems = new HashMap<>(); // ItemStack + Recipes
     public List<CondensedCraft> registeredRecipes = new ArrayList<>();
     public final List<String> ALOT_SUBCOMMANDS = new ArrayList<>(Arrays.asList("give", "reload", "inventory"));
-    public LibDamage libDmg = new LibDamage(this);
-    public LibOther libOth = new LibOther();
     public HashMap<Player, BukkitTask> playersRecipesTasks = new HashMap<>();
     public NamespacedKey hologramKey;
     @Nullable
@@ -157,7 +154,7 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
             int power = 0;
             if(arrow.getPersistentDataContainer().has(new NamespacedKey(this, "power"), PersistentDataType.INTEGER)) power = arrow.getPersistentDataContainer().get(new NamespacedKey(this, "power"), PersistentDataType.INTEGER);
             arrow.remove();
-            shooted.getWorld().createExplosion(shooted.getLocation(), 4F*((float) power /libOth.RandomBtw(1, power)));
+            shooted.getWorld().createExplosion(shooted.getLocation(), 4F*((float) power /RandomBtw(1, power)));
         }
     }
 
@@ -169,11 +166,11 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
         PersistentDataContainer bowContainer = bow.getItemMeta().getPersistentDataContainer();
         if(bowContainer.has(new NamespacedKey(this, "switch_bow"), PersistentDataType.INTEGER)) {
             e.getProjectile().getPersistentDataContainer().set(new NamespacedKey(this, "switch_bow"), PersistentDataType.INTEGER, 1);
-            libDmg.dealDamage(e.getEntity(), e.getBow(), 9);
+            dealDamage(e.getEntity(), e.getBow(), 9);
         } else if(bowContainer.has(new NamespacedKey(this, "tnt_bow"), PersistentDataType.INTEGER)) {
             e.getProjectile().getPersistentDataContainer().set(new NamespacedKey(this, "tnt_bow"), PersistentDataType.INTEGER, 1);
             e.getProjectile().getPersistentDataContainer().set(new NamespacedKey(this, "power"), PersistentDataType.INTEGER, e.getBow().getEnchantmentLevel(Enchantment.ARROW_DAMAGE)+1);
-            if(libDmg.getDurability(e.getBow()) > 5) libDmg.setDamage(e.getEntity(), e.getBow(), 5);
+            if(getDurability(e.getBow()) > 5) setDamage(e.getEntity(), e.getBow(), 5);
         }
     }
 
@@ -188,12 +185,6 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
         new LandMine(this, clickedBlock.getLocation().add(0, 1, 0), false);
         consumeUsage(e.getPlayer().getInventory(), landMine, 1);
         e.setCancelled(true);
-    }
-
-    public int consumeUsage(Inventory inv, ItemStack item, int amount){
-        item.setAmount(item.getAmount()-amount);
-        if(item.getAmount() <= 0) inv.remove(item);
-        return item.getAmount();
     }
 
     public void checkRecipe(Player player) {

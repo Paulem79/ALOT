@@ -1,13 +1,13 @@
-package fr.paulem.alot.libs.functions;
+package fr.paulem.api.libs.functions;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 public class LibOther {
-    public int RandomBtw(int min, int max){
+    public static int RandomBtw(int min, int max){
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
-    public double RandomBtw(double min, double max){
+    public static double RandomBtw(double min, double max){
         return ThreadLocalRandom.current().nextDouble(min, max + 1);
     }
 }

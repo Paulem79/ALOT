@@ -1,7 +1,7 @@
 package fr.paulem.alot.listeners;
 
 import fr.paulem.alot.ALOT;
-import fr.paulem.alot.libs.classes.CListener;
+import fr.paulem.alot.CListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,7 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.List;
 import java.util.Objects;
 
-import static fr.paulem.alot.libs.functions.LibRadius.isTherePlayerNearby;
+import static fr.paulem.api.libs.functions.LibRadius.isTherePlayerNearby;
 import static fr.paulem.alot.listeners.ListenerPloof.Ploof;
 
 public class ListenerBlood extends CListener {

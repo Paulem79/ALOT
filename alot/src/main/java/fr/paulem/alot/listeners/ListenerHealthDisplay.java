@@ -1,8 +1,8 @@
 package fr.paulem.alot.listeners;
 
 import fr.paulem.alot.ALOT;
-import fr.paulem.alot.libs.classes.CListener;
-import fr.paulem.alot.libs.classes.HoloEntity;
+import fr.paulem.alot.CListener;
+import fr.paulem.alot.entities.HoloEntity;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -19,7 +19,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
-import static fr.paulem.alot.libs.functions.LibRadius.getNearestPlayer;
+import static fr.paulem.api.libs.functions.LibOther.RandomBtw;
+import static fr.paulem.api.libs.functions.LibRadius.getNearestPlayer;
 
 public class ListenerHealthDisplay extends CListener {
     public ListenerHealthDisplay(ALOT main) {
@@ -53,7 +54,7 @@ public class ListenerHealthDisplay extends CListener {
     }
 
     public static void healthBar(ALOT main, LivingEntity entity, @Nullable Player damager, @Nullable Double finalDamage){
-        if(damager != null) new HoloEntity(main, entity.getLocation().add(main.libOth.RandomBtw(-.1, .1), 1 + main.libOth.RandomBtw(-.1, .1), main.libOth.RandomBtw(-.1, .1)), ChatColor.RED + Long.toString(Math.round(finalDamage == null ? 0.00 : (finalDamage > entity.getHealth() ? entity.getHealth() : finalDamage)))).deleteAfter(20L*2);
+        if(damager != null) new HoloEntity(main, entity.getLocation().add(RandomBtw(-.1, .1), 1 + RandomBtw(-.1, .1), RandomBtw(-.1, .1)), ChatColor.RED + Long.toString(Math.round(finalDamage == null ? 0.00 : (finalDamage > entity.getHealth() ? entity.getHealth() : finalDamage)))).deleteAfter(20L*2);
         if(entity instanceof Player) {
             healthBar(main, (Player) entity);
             return;

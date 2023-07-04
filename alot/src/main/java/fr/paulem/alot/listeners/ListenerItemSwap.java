@@ -1,7 +1,7 @@
 package fr.paulem.alot.listeners;
 
 import fr.paulem.alot.ALOT;
-import fr.paulem.alot.libs.classes.CListener;
+import fr.paulem.alot.CListener;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;

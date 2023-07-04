@@ -9,7 +9,6 @@
   <artifactId>alot</artifactId>
   <build>
     <directory>../target</directory>
-    <finalName>ALOT</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>

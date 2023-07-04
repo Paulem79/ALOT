@@ -1,6 +1,6 @@
-package fr.paulem.alot.libs.radios;
+package fr.paulem.api.libs.radios;
 
-import fr.paulem.alot.libs.enums.VersionMethod;
+import fr.paulem.api.libs.enums.VersionMethod;
 
 public record LibVersion(int major, int minor, int revision) {
 

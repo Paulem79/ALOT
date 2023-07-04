@@ -1,6 +1,5 @@
-package fr.paulem.alot.libs.classes;
+package fr.paulem.alot;
 
-import fr.paulem.alot.ALOT;
 import org.bukkit.event.Listener;
 
 /**

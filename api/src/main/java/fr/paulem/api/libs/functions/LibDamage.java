@@ -1,25 +1,26 @@
-package fr.paulem.alot.libs.functions;
+package fr.paulem.api.libs.functions;
 
-import fr.paulem.alot.ALOT;
-import fr.paulem.alot.libs.classes.CMain;
+import fr.paulem.api.libs.enums.VersionMethod;
+import fr.paulem.api.libs.radios.LibVersion;
 import org.bukkit.GameMode;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class LibDamage extends CMain {
-    public LibDamage(ALOT main) {
-        super(main);
-    }
+import static fr.paulem.api.libs.radios.LibVersion.getVersion;
+
+public class LibDamage {
+    private static final LibVersion bukkitVersion = getVersion(VersionMethod.BUKKIT);
 
     public int dealDamage(ItemStack item, int damage){
         return dealDamage(item, damage, true);
     }
 
-    public int dealDamage(Entity entity, ItemStack item, int damage){
+    public static int dealDamage(Entity entity, ItemStack item, int damage){
         if(entity instanceof Player player){
             if(player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return 0;
         }
@@ -27,8 +28,8 @@ public class LibDamage extends CMain {
         return dealDamage(item, damage, true);
     }
 
-    public int dealDamage(ItemStack item, int damage, boolean considerUnbreaking){
-        if(ALOT.bukkitVersion.minor() < 17) return 0;
+    public static int dealDamage(ItemStack item, int damage, boolean considerUnbreaking){
+        if(bukkitVersion.minor() < 17) return 0;
         ItemMeta itemMeta = item.getItemMeta();
 
         if (itemMeta instanceof Damageable damageable) {
@@ -42,7 +43,7 @@ public class LibDamage extends CMain {
         return 0;
     }
 
-    public int setDamage(Entity entity, ItemStack item, int damage) {
+    public static int setDamage(Entity entity, ItemStack item, int damage) {
         if(entity instanceof Player player){
             if(player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return 0;
         }
@@ -50,8 +51,8 @@ public class LibDamage extends CMain {
         return setDamage(item, damage);
     }
 
-    public int setDamage(ItemStack item, int damage) {
-        if(ALOT.bukkitVersion.minor() < 17) return 0;
+    public static int setDamage(ItemStack item, int damage) {
+        if(bukkitVersion.minor() < 17) return 0;
         ItemMeta itemMeta = item.getItemMeta();
 
         if (itemMeta instanceof Damageable damageable) {
@@ -65,7 +66,7 @@ public class LibDamage extends CMain {
         return 0;
     }
 
-    public int getDamage(ItemStack item) {
+    public static int getDamage(ItemStack item) {
         ItemMeta itemMeta = item.getItemMeta();
 
         if (itemMeta instanceof Damageable damageable) {
@@ -75,7 +76,7 @@ public class LibDamage extends CMain {
         return 0;
     }
 
-    public int getDurability(ItemStack item) {
+    public static int getDurability(ItemStack item) {
         ItemMeta itemMeta = item.getItemMeta();
 
         if (itemMeta instanceof Damageable damageable) {
@@ -83,5 +84,11 @@ public class LibDamage extends CMain {
         }
 
         return 0;
+    }
+
+    public static int consumeUsage(Inventory inv, ItemStack item, int amount){
+        item.setAmount(item.getAmount()-amount);
+        if(item.getAmount() <= 0) inv.remove(item);
+        return item.getAmount();
     }
 }
