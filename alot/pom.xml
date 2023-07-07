@@ -26,15 +26,15 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>fr.paulem.api</groupId>
-            <artifactId>api</artifactId>
+            <groupId>fr.paulem.paperapi</groupId>
+            <artifactId>paperapi</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>fr.paulem.paperapi</groupId>
-            <artifactId>paperapi</artifactId>
+            <groupId>fr.paulem.api</groupId>
+            <artifactId>api</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
             <optional>true</optional>

@@ -1,7 +1,5 @@
 package fr.paulem.alot;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import fr.paulem.alot.blocks.LandMine;
 import fr.paulem.alot.commands.CommandALOT;
 import fr.paulem.alot.commands.tabcompletes.TabCommandALOT;
@@ -38,7 +36,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,6 +47,7 @@ import static fr.paulem.api.libs.functions.LibDamage.*;
 import static fr.paulem.api.libs.functions.LibOther.RandomBtw;
 import static fr.paulem.api.libs.functions.LibRadius.isTherePlayerNearby;
 import static fr.paulem.api.libs.radios.LibVersion.getVersion;
+import static fr.paulem.paperapi.PaperAPI.initPaper;
 
 public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
     public List<LandMine> landMines = new ArrayList<>();
@@ -63,11 +61,9 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
     public final List<String> ALOT_SUBCOMMANDS = new ArrayList<>(Arrays.asList("give", "reload", "inventory"));
     public HashMap<Player, BukkitTask> playersRecipesTasks = new HashMap<>();
     public NamespacedKey hologramKey;
-    @Nullable
-    public ProtocolManager manager;
 
     @Override
-    public void onEnable(){
+    public void onEnable() {
         reloadConfig();
         registerEvents(this, new ListenerPloof(this));
         registerEvents(this, new ListenerHealthDisplay(this));
@@ -76,13 +72,15 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
         registerEvents(this, new ListenerItemSwap(this));
         registerEvents(this, this);
 
+        initPaper(this);
+
         Objects.requireNonNull(getCommand("alot")).setExecutor(new CommandALOT(this));
         Objects.requireNonNull(getCommand("alot")).setTabCompleter(new TabCommandALOT(this));
 
         hologramKey = new NamespacedKey(this, "hologram");
-        for(Entity textDisplay : Bukkit.getWorlds().stream()
+        for (Entity textDisplay : Bukkit.getWorlds().stream()
                 .flatMap(world -> world.getEntities().stream().filter(txt -> txt.getPersistentDataContainer().has(hologramKey, PersistentDataType.INTEGER)))
-                .toList()){
+                .toList()) {
             textDisplay.remove();
         }
 
@@ -115,8 +113,6 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
                 }
             }
         }.runTaskTimer(this, 1L, 5L);
-
-        if(getServer().getPluginManager().isPluginEnabled("ProtocolLib")) manager = ProtocolLibrary.getProtocolManager();
 
         getLogger().info("Plugin activated !");
         Main.init(this);

@@ -5,13 +5,11 @@ import fr.paulem.alot.CMain;
 import fr.paulem.alot.blocks.CustomBlock;
 import fr.paulem.api.API;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import static fr.paulem.alot.gui.GUIAddedItems.creativeTabInventory;
@@ -73,12 +71,7 @@ public class CommandALOT extends CMain implements CommandExecutor {
             return true;
         } else if(sub.equalsIgnoreCase("tt")){
             if(sender instanceof Player player){
-                ItemStack item = new ItemStack(Material.BOW, 1);
-                ItemMeta im = item.getItemMeta();
-                assert im != null;
-                im.setCustomModelData(2);
-                item.setItemMeta(im);
-                new CustomBlock(item, player.getLocation());
+                new CustomBlock(main, player.getInventory().getItemInMainHand(), player.getLocation());
             } else sender.sendMessage(ChatColor.RED + "You must be a player to use this command !");
             return true;
         }

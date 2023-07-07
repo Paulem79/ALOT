@@ -20,7 +20,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class API {
-    public static void registerEvents(JavaPlugin plugin, Listener listener){
+    public static boolean isServerPaperBased() {
+        try {
+            Class.forName("com.destroystokyo.paper.ParticleBuilder");
+            return true;
+        } catch (ClassNotFoundException ignored) {
+            return false;
+        }
+    }
+
+    public static void registerEvents(JavaPlugin plugin, Listener listener) {
         plugin.getServer().getPluginManager().registerEvents(listener, plugin);
     }
 
