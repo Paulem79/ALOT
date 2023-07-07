@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -15,6 +14,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class LandMine {
 
@@ -23,49 +23,48 @@ public class LandMine {
     public BlockDisplay landMineEntity;
     public Location locationLandMine;
 
-    public LandMine(ALOT main, Location location, boolean passInit){
+    public LandMine(ALOT main, Location location, boolean passInit) {
         this.main = main;
         locationLandMine = location;
         World world = location.getWorld();
-        if(world == null) throw new NullPointerException("world is null");
+        if (world == null) throw new NullPointerException("world is null");
 
-        Block redstoneWhile = location.getBlock();
-        while(!redstoneWhile.getType().isSolid()){
-            redstoneWhile = redstoneWhile.getLocation().subtract(0, 1, 0).getBlock();
-        }
+        world.spawn(location, BlockDisplay.class, (blockDisplay -> {
+            blockDisplay.setBlock(Stream.iterate(location.getBlock(), block -> !block.getType().isSolid(), block -> block.getLocation().subtract(0, 1, 0).getBlock())
+                    .findFirst()
+                    .orElse(location.getBlock())
+                    .getBlockData());
+            blockDisplay.setTransformation(new Transformation(new Vector3f(0, 0, 0), new AxisAngle4f(0, 0, 0, 0), new Vector3f(0.15f, 0.1f, 0.15f), new AxisAngle4f(0, 0, 0, 0)));
+            blockDisplay.setInvulnerable(true);
+            blockDisplay.setPersistent(true);
+            blockDisplay.getPersistentDataContainer().set(new NamespacedKey(this.main, "landmine"), PersistentDataType.INTEGER, 1);
+            landMineEntity = blockDisplay;
 
-        landMineEntity = world.spawn(location, BlockDisplay.class);
-        landMineEntity.setBlock(redstoneWhile.getBlockData());
-        landMineEntity.setTransformation(new Transformation(new Vector3f(0, 0, 0), new AxisAngle4f(0, 0, 0, 0), new Vector3f(0.15f, 0.1f, 0.15f), new AxisAngle4f(0, 0, 0, 0)));
-        landMineEntity.setInvulnerable(true);
-        landMineEntity.setPersistent(true);
-        landMineEntity.getPersistentDataContainer().set(new NamespacedKey(this.main, "landmine"), PersistentDataType.INTEGER, 1);
+            if (passInit) LandMine.this.main.landMines.add(LandMine.this);
+            else {
+                BukkitTask initLandMine = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Objects.requireNonNull(LandMine.this.getLocationLandMine().getWorld()).playSound(LandMine.this.getLocationLandMine(), Sound.ENTITY_CREEPER_PRIMED, 1F, 1F);
+                    }
+                }.runTaskTimer(this.main, 20L, 20L);
 
-        if(passInit){
-            LandMine.this.main.landMines.add(LandMine.this);
-        } else {
-            BukkitTask initLandMine = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Objects.requireNonNull(LandMine.this.getLocationLandMine().getWorld()).playSound(LandMine.this.getLocationLandMine(), Sound.ENTITY_CREEPER_PRIMED, 1F, 1F);
-                }
-            }.runTaskTimer(this.main, 20L, 20L);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        initLandMine.cancel();
+                    }
+                }.runTaskLater(this.main, 20L * 2);
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    initLandMine.cancel();
-                }
-            }.runTaskLater(this.main, 20L * 2);
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Objects.requireNonNull(LandMine.this.getLocationLandMine().getWorld()).playSound(LandMine.this.getLocationLandMine(), Sound.BLOCK_BELL_USE, 1F, 1F);
-                    LandMine.this.main.landMines.add(LandMine.this);
-                }
-            }.runTaskLater(this.main, 20L * 3);
-        }
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Objects.requireNonNull(LandMine.this.getLocationLandMine().getWorld()).playSound(LandMine.this.getLocationLandMine(), Sound.BLOCK_BELL_USE, 1F, 1F);
+                        LandMine.this.main.landMines.add(LandMine.this);
+                    }
+                }.runTaskLater(this.main, 20L * 3);
+            }
+        }));
     }
 
     public static LandMine newLandMine(ALOT main, BlockDisplay blockDisplay){
