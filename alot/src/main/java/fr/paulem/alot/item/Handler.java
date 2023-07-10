@@ -1,11 +1,11 @@
 package fr.paulem.alot.item;
 
 import fr.paulem.alot.ALOT;
+import fr.paulem.alot.CMain;
 import fr.paulem.alot.item.items.SwitchBow;
 import fr.paulem.alot.item.items.TNTBow;
 import fr.paulem.alot.item.items.TNTLandMine;
-import fr.paulem.api.libs.classes.CondensedCraft;
-import fr.paulem.alot.CMain;
+import fr.paulem.api.classes.CondensedCraft;
 import org.bukkit.inventory.ShapedRecipe;
 
 import java.util.List;

@@ -1,8 +1,8 @@
-package fr.paulem.api.libs.enums;
+package fr.paulem.api.enums;
 
 import net.md_5.bungee.api.ChatColor;
 
-import static fr.paulem.api.libs.radios.LibVersion.getVersion;
+import static fr.paulem.api.radios.LibVersion.getVersion;
 
 public enum MoreColors {;
     final ChatColor color;

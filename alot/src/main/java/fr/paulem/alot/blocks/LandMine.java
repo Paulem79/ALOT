@@ -18,10 +18,10 @@ import java.util.stream.Stream;
 
 public class LandMine {
 
-    public ALOT main;
+    public final ALOT main;
 
     public BlockDisplay landMineEntity;
-    public Location locationLandMine;
+    public final Location locationLandMine;
 
     public LandMine(ALOT main, Location location, boolean passInit) {
         this.main = main;

@@ -1,5 +1,6 @@
-package fr.paulem.api.libs.functions;
+package fr.paulem.api.functions;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -10,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class LibRadius {
     public static Collection<Block> getBlocksInRadius(Location location, int radius) {
@@ -70,5 +74,20 @@ public class LibRadius {
                 .map(Player.class::cast)
                 .min(Comparator.comparingDouble(player -> entity.getLocation().distance(player.getLocation())))
                 .orElse(null);
+    }
+
+    public static <T> Stream<T> getEntitiesInAllWorlds(Predicate<? super Entity> filter, Function<? super Entity, ? extends T> mapper) {
+        return getEntitiesInAllWorlds(filter)
+                .map(mapper);
+    }
+
+    public static Stream<Entity> getEntitiesInAllWorlds(Predicate<? super Entity> filter) {
+        return getEntitiesInAllWorlds()
+                .filter(filter);
+    }
+
+    public static Stream<Entity> getEntitiesInAllWorlds() {
+        return Bukkit.getWorlds().stream()
+                .flatMap(world -> world.getEntities().stream());
     }
 }

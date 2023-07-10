@@ -1,7 +1,7 @@
-package fr.paulem.api.libs.functions;
+package fr.paulem.api.functions;
 
-import fr.paulem.api.libs.enums.VersionMethod;
-import fr.paulem.api.libs.radios.LibVersion;
+import fr.paulem.api.enums.VersionMethod;
+import fr.paulem.api.radios.LibVersion;
 import org.bukkit.GameMode;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import static fr.paulem.api.libs.radios.LibVersion.getVersion;
+import static fr.paulem.api.radios.LibVersion.getVersion;
 
 public class LibDamage {
     private static final LibVersion bukkitVersion = getVersion(VersionMethod.BUKKIT);

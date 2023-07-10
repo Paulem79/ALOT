@@ -9,7 +9,6 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>nms_v16</module>
         <module>alot</module>
         <module>api</module>
         <module>paperapi</module>

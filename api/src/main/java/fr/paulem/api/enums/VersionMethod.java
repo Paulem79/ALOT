@@ -1,4 +1,4 @@
-package fr.paulem.api.libs.enums;
+package fr.paulem.api.enums;
 
 import org.bukkit.Bukkit;
 

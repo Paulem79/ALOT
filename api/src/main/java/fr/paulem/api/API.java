@@ -145,11 +145,11 @@ public class API {
     }
 
     static class LaunchItemReturn {
-        public boolean okay;
-        public @Nullable LivingEntity livingEntity;
-        public @Nullable Block block;
+        public final boolean okay;
+        public final @Nullable LivingEntity livingEntity;
+        public final @Nullable Block block;
 
-        public LaunchItemReturn(boolean okay, @Nullable LivingEntity livingEntity, @Nullable Block block){
+        public LaunchItemReturn(boolean okay, @Nullable LivingEntity livingEntity, @Nullable Block block) {
             this.okay = okay;
             this.livingEntity = livingEntity;
             this.block = block;

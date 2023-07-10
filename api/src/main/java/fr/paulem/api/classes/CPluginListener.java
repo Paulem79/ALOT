@@ -1,4 +1,4 @@
-package fr.paulem.api.libs.classes;
+package fr.paulem.api.classes;
 
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;

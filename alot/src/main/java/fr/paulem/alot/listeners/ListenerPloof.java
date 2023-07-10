@@ -2,7 +2,11 @@ package fr.paulem.alot.listeners;
 
 import fr.paulem.alot.ALOT;
 import fr.paulem.alot.CListener;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

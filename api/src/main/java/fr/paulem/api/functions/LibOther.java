@@ -1,4 +1,4 @@
-package fr.paulem.api.libs.functions;
+package fr.paulem.api.functions;
 
 import java.util.concurrent.ThreadLocalRandom;
 

@@ -3,159 +3,109 @@ package fr.paulem.alot.listeners;
 import fr.paulem.alot.ALOT;
 import fr.paulem.alot.CListener;
 import fr.paulem.alot.entities.HoloEntity;
+import fr.paulem.api.functions.LibRadius;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.entity.EntityType;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
-import static fr.paulem.api.libs.functions.LibOther.RandomBtw;
-import static fr.paulem.api.libs.functions.LibRadius.getNearestPlayer;
+import static fr.paulem.api.functions.LibOther.RandomBtw;
 
 public class ListenerHealthDisplay extends CListener {
     public ListenerHealthDisplay(ALOT main) {
         super(main);
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e){
-        healthBar(main, e.getPlayer());
-    }
+    public static void healthBar(ALOT main, LivingEntity entity, boolean playerNear, @Nullable Double finalDamage) {
+        if (!playerNear) return;
+        if (entity instanceof Player) return;
 
-    @EventHandler
-    public void onPlayerWorldChange(PlayerChangedWorldEvent e){
-        healthBar(main, e.getPlayer());
-    }
+        //Afficher les dégâts
+        if (finalDamage != null && finalDamage > 0) new HoloEntity(main,
+                entity.getLocation().add(RandomBtw(-.1, .1), 1 + RandomBtw(-.1, .1), RandomBtw(-.1, .1)),
+                ChatColor.RED + Long.toString(Math.round(finalDamage > entity.getHealth() ? entity.getHealth() : finalDamage)))
+                .deleteAfter(20L * 2);
 
-    @EventHandler
-    public void onSpawn(EntitySpawnEvent e) {
-        if(e.getEntity() instanceof LivingEntity entity){
-            healthBar(main, entity, null, null);
+        List<Entity> holoEntities = LibRadius.getEntitiesInAllWorlds().filter(e -> Objects.equals(e.getPersistentDataContainer().get(main.healthbarKey, PersistentDataType.STRING), entity.getUniqueId().toString())).toList();
+        for (Entity holo : holoEntities) {
+            holo.remove();
         }
-    }
 
-    @EventHandler
-    public void onAttack(EntityDamageEvent e){
-        if(e.getEntity() instanceof LivingEntity entity){
-            Player damager = getNearestPlayer(e.getEntity());
-            if(damager != null && e.getEntity().getLocation().distance(damager.getLocation()) > 20) damager = null;
-            healthBar(main, entity, damager, e.getFinalDamage());
-        }
-    }
-
-    public static void healthBar(ALOT main, LivingEntity entity, @Nullable Player damager, @Nullable Double finalDamage){
-        if(damager != null) new HoloEntity(main, entity.getLocation().add(RandomBtw(-.1, .1), 1 + RandomBtw(-.1, .1), RandomBtw(-.1, .1)), ChatColor.RED + Long.toString(Math.round(finalDamage == null ? 0.00 : (finalDamage > entity.getHealth() ? entity.getHealth() : finalDamage)))).deleteAfter(20L*2);
-        if(entity instanceof Player) {
-            healthBar(main, (Player) entity);
-            return;
-        }
-        if(entity.getCustomName() == null || isHealthName(entity.getCustomName())) {
-            new BukkitRunnable(){
-                @Override
-                public void run() {
-                    entity.setCustomName(markdown(entity.getType().name()) + rest(entity, null));
-                    entity.setCustomNameVisible(damager != null);
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            entity.setCustomNameVisible(false);
-                        }
-                    }.runTaskLater(main, 20L * 5L);
-                }
-            }.runTask(main);
-        }
-    }
-
-    public static void healthBar(ALOT main, Player entity){
-        new BukkitRunnable(){
+        new BukkitRunnable() {
             @Override
             public void run() {
-                entity.setDisplayName(entity.getName() + rest(entity, null));
+                Location location = entity.getLocation().clone();
+                location.setY(entity.getHeight() + entity.getLocation().getY() + .2);
+
+                HoloEntity holoEntity = new HoloEntity(main, location, healthText(entity), entity);
+                holoEntity.deleteAfter(20L * 5, new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (entity.isDead()) holoEntity.hologram.remove();
+                        Location location = entity.getLocation().clone();
+                        location.setY(entity.getHeight() + entity.getLocation().getY() + .2);
+                        holoEntity.hologram.teleport(location);
+                    }
+                }.runTaskTimer(main, 1, 1));
             }
         }.runTask(main);
     }
 
-    private static String rest(LivingEntity entity, @Nullable LifeStyle lifeStyle) {
-        if(lifeStyle == null) lifeStyle = LifeStyle.MULTIPLE;
+    private static String healthText(LivingEntity entity) {
+        return healthText(entity, null);
+    }
+
+    private static String healthText(LivingEntity entity, @Nullable LifeStyle lifeStyle) {
+        if (lifeStyle == null) lifeStyle = LifeStyle.MULTIPLE;
 
         int scale = lifeStyle.getToFixed();
         int amount = lifeStyle.getAmount();
-        double size = (entity.getHealth()/amount);
+        double size = (entity.getHealth() / amount);
 
         StringBuilder healthDisplay = new StringBuilder();
         BigDecimal bigDecimal = null;
-        if(lifeStyle.getAmount() != 2){
+        if (lifeStyle.getAmount() != 2) {
             bigDecimal = BigDecimal.valueOf(size).setScale(scale, RoundingMode.HALF_UP);
         }
-        if(lifeStyle == LifeStyle.MULTIPLE){
-            if(size > 10) return rest(entity, LifeStyle.TEN);
+        if (lifeStyle == LifeStyle.MULTIPLE) {
+            if (size > 10) return healthText(entity, LifeStyle.TEN);
             else {
-                for (int i = 0; i < size-1; i++) {
+                for (int i = 0; i < size - 1; i++) {
                     healthDisplay.append(lifeStyle.getStyle());
                 }
-                if((int) Math.ceil(size) != size) healthDisplay.append(LifeColors.SEMI.getColor()).append(lifeStyle.getStyle());
+                if ((int) Math.ceil(size) != size)
+                    healthDisplay.append(LifeColors.SEMI.getColor()).append(lifeStyle.getStyle());
                 else healthDisplay.append(lifeStyle.getStyle());
             }
         } else healthDisplay.append(lifeStyle.getStyle());
         return " " + lifeStyle.getColor().getColor() + (bigDecimal != null ? bigDecimal : "") + healthDisplay;
     }
 
-    private static boolean isHealthName(String input) {
-        EntityType[] entityTypes = EntityType.values();
-        LifeColors[] colors = LifeColors.values();
-        LifeStyle[] lifeStyles = LifeStyle.values();
-
-        String[] entityNames = new String[entityTypes.length];
-        ChatColor[] colorValues = new ChatColor[colors.length];
-        String[] lifeValues = new String[lifeStyles.length];
-
-        // Construire un tableau contenant les noms des types d'entités
-        for (int i = 0; i < entityTypes.length; i++) {
-            entityNames[i] = markdown(entityTypes[i].name());
+    @EventHandler
+    public void onSpawn(EntitySpawnEvent e) {
+        if (e.getEntity() instanceof LivingEntity entity) {
+            healthBar(main, entity, false, null);
         }
-
-        // Construire un tableau contenant les valeurs des couleurs de vie
-        for (int i = 0; i < colors.length; i++) {
-            colorValues[i] = colors[i].getColor();
-        }
-
-        // Construire un tableau contenant les valeurs des couleurs de vie
-        for (int i = 0; i < lifeStyles.length; i++) {
-            lifeValues[i] = lifeStyles[i].getStyle();
-        }
-
-        // Vérifier la correspondance en utilisant des conditions
-        boolean entityTypeMatch = Arrays.stream(entityNames).anyMatch(input::startsWith);
-        boolean colorMatch = Arrays.stream(colorValues).anyMatch(color -> input.toLowerCase().contains(color.toString()));
-        boolean heartMatch = Arrays.stream(lifeValues).anyMatch(input::endsWith);
-
-        return entityTypeMatch && colorMatch && heartMatch;
     }
 
-    private static String markdown(String input){
-        String[] mots = input.split(" ");
-        return input.replace(mots[0], firstLetterToUpperCase(mots[0])).replace("_", " ");
-    }
-
-    private static String firstLetterToUpperCase(String mot) {
-        if (mot.length() < 2) {
-            return mot.toUpperCase();
+    @EventHandler
+    public void onAttack(EntityDamageByEntityEvent e) {
+        if (e.getEntity() instanceof LivingEntity entity) {
+            // L'entité est attaquée par un joueur, montrer la barre de vie
+            healthBar(main, entity, e.getDamager() instanceof Player, e.getFinalDamage());
         }
-
-        String premiereLettre = mot.substring(0, 1).toUpperCase();
-        String resteMot = mot.substring(1).toLowerCase();
-
-        return premiereLettre + resteMot;
     }
 
     private enum LifeColors {
@@ -173,6 +123,7 @@ public class ListenerHealthDisplay extends CListener {
         }
     }
 
+    @SuppressWarnings("unused")
     private enum LifeStyle {
         HEART("❤", 2, 1, LifeColors.FULL),
         TWO("x❤❤", 4, 1, LifeColors.FULL),

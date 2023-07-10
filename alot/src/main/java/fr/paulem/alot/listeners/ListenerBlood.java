@@ -17,8 +17,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.List;
 import java.util.Objects;
 
-import static fr.paulem.api.libs.functions.LibRadius.isTherePlayerNearby;
 import static fr.paulem.alot.listeners.ListenerPloof.Ploof;
+import static fr.paulem.api.functions.LibRadius.isTherePlayerNearby;
 
 public class ListenerBlood extends CListener {
 

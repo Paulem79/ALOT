@@ -1,6 +1,6 @@
 package fr.paulem.paperapi;
 
-import fr.paulem.api.libs.classes.CPluginListener;
+import fr.paulem.api.classes.CPluginListener;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 

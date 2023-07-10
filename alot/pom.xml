@@ -19,13 +19,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>fr.paulem.nms_v16</groupId>
-            <artifactId>nms_v16</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>fr.paulem.paperapi</groupId>
             <artifactId>paperapi</artifactId>
             <version>1.0-SNAPSHOT</version>

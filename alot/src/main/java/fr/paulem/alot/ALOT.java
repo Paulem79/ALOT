@@ -9,17 +9,25 @@ import fr.paulem.alot.listeners.ListenerBlood;
 import fr.paulem.alot.listeners.ListenerHealthDisplay;
 import fr.paulem.alot.listeners.ListenerItemSwap;
 import fr.paulem.alot.listeners.ListenerPloof;
-import fr.paulem.api.libs.classes.CondensedCraft;
-import fr.paulem.api.libs.enums.VersionMethod;
-import fr.paulem.api.libs.functions.LibRadius;
-import fr.paulem.api.libs.radios.LibVersion;
-import fr.paulem.nms_v16.Main;
-import org.bukkit.*;
+import fr.paulem.api.classes.CondensedCraft;
+import fr.paulem.api.enums.VersionMethod;
+import fr.paulem.api.functions.LibRadius;
+import fr.paulem.api.radios.LibVersion;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -37,30 +45,36 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static fr.paulem.alot.blocks.LandMine.newLandMine;
-import static fr.paulem.alot.listeners.ListenerHealthDisplay.healthBar;
 import static fr.paulem.api.API.registerEvents;
-import static fr.paulem.api.libs.functions.LibDamage.*;
-import static fr.paulem.api.libs.functions.LibOther.RandomBtw;
-import static fr.paulem.api.libs.functions.LibRadius.isTherePlayerNearby;
-import static fr.paulem.api.libs.radios.LibVersion.getVersion;
+import static fr.paulem.api.functions.LibDamage.consumeUsage;
+import static fr.paulem.api.functions.LibDamage.dealDamage;
+import static fr.paulem.api.functions.LibDamage.getDurability;
+import static fr.paulem.api.functions.LibDamage.setDamage;
+import static fr.paulem.api.functions.LibOther.RandomBtw;
+import static fr.paulem.api.radios.LibVersion.getVersion;
 import static fr.paulem.paperapi.PaperAPI.initPaper;
 
 public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
-    public List<LandMine> landMines = new ArrayList<>();
-    public FileConfiguration config;
-    @SuppressWarnings("unused")
-    public static LibVersion bukkitVersion = getVersion(VersionMethod.BUKKIT);
-    @SuppressWarnings("unused")
+    public static final LibVersion bukkitVersion = getVersion(VersionMethod.BUKKIT);
     public static LibVersion serverVersion = getVersion(VersionMethod.SERVER);
-    public HashMap<NamespacedKey, ItemStack> registeredItems = new HashMap<>(); // ItemStack + Recipes
-    public List<CondensedCraft> registeredRecipes = new ArrayList<>();
     public final List<String> ALOT_SUBCOMMANDS = new ArrayList<>(Arrays.asList("give", "reload", "inventory"));
-    public HashMap<Player, BukkitTask> playersRecipesTasks = new HashMap<>();
-    public NamespacedKey hologramKey;
+    public final List<LandMine> landMines = new ArrayList<>();
+    public final HashMap<NamespacedKey, ItemStack> registeredItems = new HashMap<>();
+    public final List<CondensedCraft> registeredRecipes = new ArrayList<>(); // ItemStack + Recipes
+    public final HashMap<Player, BukkitTask> playersRecipesTasks = new HashMap<>();
+    public final NamespacedKey hologramKey = new NamespacedKey(this, "hologram");
+    public final NamespacedKey healthbarKey = new NamespacedKey(this, "healthbar");
+    public FileConfiguration config;
 
     @Override
     public void onEnable() {
@@ -77,29 +91,24 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
         Objects.requireNonNull(getCommand("alot")).setExecutor(new CommandALOT(this));
         Objects.requireNonNull(getCommand("alot")).setTabCompleter(new TabCommandALOT(this));
 
-        hologramKey = new NamespacedKey(this, "hologram");
-        for (Entity textDisplay : Bukkit.getWorlds().stream()
-                .flatMap(world -> world.getEntities().stream().filter(txt -> txt.getPersistentDataContainer().has(hologramKey, PersistentDataType.INTEGER)))
+        for (Entity textDisplay : LibRadius.getEntitiesInAllWorlds(txt -> (txt instanceof ArmorStand || txt instanceof TextDisplay) && txt.getPersistentDataContainer().has(hologramKey, PersistentDataType.INTEGER))
                 .toList()) {
             textDisplay.remove();
         }
 
-        if(bukkitVersion.minor() >= 14) new Handler(this);
-        for(World world : getServer().getWorlds()){
-            for(LivingEntity entity : world.getEntities().stream().filter(e -> e instanceof LivingEntity).map(e -> (LivingEntity) e).toList()){
-                healthBar(this, entity, null, null);
-                if(!isTherePlayerNearby(entity)){
-                    entity.setCustomNameVisible(false);
-                }
-            }
-            if(bukkitVersion.minor() >= 19) landMines.addAll(world.getEntities().stream().filter(e -> e instanceof BlockDisplay blockDisplay && blockDisplay.getPersistentDataContainer().has(new NamespacedKey(ALOT.this, "landmine"), PersistentDataType.INTEGER)).map(e -> newLandMine(this, (BlockDisplay) e)).toList());
-        }
+        if (bukkitVersion.minor() >= 14) new Handler(this);
 
-        for(Player player : Bukkit.getOnlinePlayers()){
+        if (bukkitVersion.minor() >= 19) landMines.addAll(LibRadius.getEntitiesInAllWorlds(
+                        e -> e instanceof BlockDisplay blockDisplay && blockDisplay.getPersistentDataContainer().has(new NamespacedKey(ALOT.this, "landmine"), PersistentDataType.INTEGER),
+                        e -> newLandMine(this, (BlockDisplay) e))
+                .toList()
+        );
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
             checkRecipe(player);
         }
 
-        if(bukkitVersion.minor() >= 19) new BukkitRunnable() {
+        if (bukkitVersion.minor() >= 19) new BukkitRunnable() {
             @Override
             public void run() {
                 try {
@@ -108,14 +117,13 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
                             landMine.explose();
                         }
                     }
-                } catch(ConcurrentModificationException ignored){
+                } catch (ConcurrentModificationException ignored) {
 
                 }
             }
         }.runTaskTimer(this, 1L, 5L);
 
         getLogger().info("Plugin activated !");
-        Main.init(this);
     }
 
     @Override

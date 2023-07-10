@@ -1,4 +1,4 @@
-package fr.paulem.api.libs.classes;
+package fr.paulem.api.classes;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
