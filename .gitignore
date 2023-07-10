@@ -5,6 +5,8 @@ target/
 
 ### IntelliJ IDEA ###
 .idea/
+.xml
+!*pom.xml
 *.iws
 *.iml
 *.ipr
