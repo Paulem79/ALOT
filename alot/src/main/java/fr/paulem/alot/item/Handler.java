@@ -16,17 +16,23 @@ public class Handler extends CMain {
         super(main);
         for(CondensedCraft condensedCraft : init()){
             for(ShapedRecipe recipe : condensedCraft.getRecipes()) {
+                if (main.getServer().getRecipesFor(condensedCraft.getItemStack()).contains(recipe)) {
+                    if (!recipe.getKey().getKey().contains("invert"))
+                        main.registeredItems.putIfAbsent(recipe.getKey(), condensedCraft.getItemStack());
+                    continue;
+                }
                 if (ALOT.bukkitVersion.minor() >= 16) {
                     main.getServer().removeRecipe(recipe.getKey());
                 }
                 main.getServer().addRecipe(recipe);
-                if(!recipe.getKey().getKey().contains("invert")) main.registeredItems.putIfAbsent(recipe.getKey(), condensedCraft.getItemStack());
+                if (!recipe.getKey().getKey().contains("invert"))
+                    main.registeredItems.putIfAbsent(recipe.getKey(), condensedCraft.getItemStack());
             }
             main.registeredRecipes.add(new CondensedCraft(condensedCraft.getItemStack(), condensedCraft.getRecipes().stream().filter(r -> !r.getKey().getKey().contains("invert")).toList()));
         }
     }
 
-    private List<CondensedCraft> init(){
+    private List<CondensedCraft> init() {
         return Stream.of(new TNTBow(main), new SwitchBow(main), new TNTLandMine(main)).map(CustomItem::init).toList();
     }
 }

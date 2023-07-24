@@ -4,6 +4,7 @@ import fr.paulem.alot.ALOT;
 import fr.paulem.alot.CMain;
 import fr.paulem.alot.blocks.CustomBlock;
 import fr.paulem.api.API;
+import fr.paulem.api.functions.LibOther;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -38,7 +39,7 @@ public class CommandALOT extends CMain implements CommandExecutor {
         String sub = args[0];
 
         if (sub.equalsIgnoreCase("reload") || sub.equalsIgnoreCase("rl")) {
-            main.reloadConfig();
+            ALOT.config = LibOther.reloadConfig(main);
             sender.sendMessage(ChatColor.GREEN + "Config successfully reloaded !");
             return true;
         } else if (sub.equalsIgnoreCase("give")){
@@ -71,7 +72,7 @@ public class CommandALOT extends CMain implements CommandExecutor {
             return true;
         } else if(sub.equalsIgnoreCase("tt")){
             if(sender instanceof Player player){
-                new CustomBlock(main, player.getInventory().getItemInMainHand(), player.getLocation());
+                new CustomBlock(player.getInventory().getItemInMainHand(), player.getLocation(), player.getTargetBlockExact(16));
             } else sender.sendMessage(ChatColor.RED + "You must be a player to use this command !");
             return true;
         }

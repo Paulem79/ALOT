@@ -87,8 +87,9 @@ public class LibDamage {
     }
 
     public static int consumeUsage(Inventory inv, ItemStack item, int amount){
-        item.setAmount(item.getAmount()-amount);
-        if(item.getAmount() <= 0) inv.remove(item);
+        if (inv.getHolder() instanceof Player player && player.getGameMode() != GameMode.CREATIVE)
+            item.setAmount(item.getAmount() - amount);
+        if (item.getAmount() <= 0) inv.remove(item);
         return item.getAmount();
     }
 }

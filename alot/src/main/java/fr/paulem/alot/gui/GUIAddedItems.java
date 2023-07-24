@@ -3,7 +3,6 @@ package fr.paulem.alot.gui;
 import fr.paulem.alot.ALOT;
 import fr.paulem.alot.CListener;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -26,23 +25,31 @@ public class GUIAddedItems extends CListener {
     }
 
     @EventHandler
-    public void onInventoryClick(final InventoryDragEvent e) {
+    public void onInventoryClick(InventoryDragEvent e) {
         if (e.getInventory().equals(creativeTabInventory)) e.setCancelled(true);
+        if (e.getInventory() == e.getWhoClicked().getInventory() && e.getInventory() != creativeTabInventory)
+            e.setCancelled(true);
     }
 
     @EventHandler
-    public void onInventoryClick(final InventoryClickEvent e) {
-        if (!e.getInventory().equals(creativeTabInventory)) return;
+    public void onInventoryClick(InventoryClickEvent e) {
+        if (e.getInventory() != creativeTabInventory) return;
+        if (e.getClickedInventory() == e.getWhoClicked().getInventory() || e.getClickedInventory() != creativeTabInventory) {
+            e.setCancelled(true);
+            return;
+        }
+
+        ItemStack clickedItem = e.getCurrentItem();
+        if (!main.registeredItems.containsValue(clickedItem)) {
+            e.setCancelled(true);
+            return;
+        }
 
         e.setCancelled(true);
 
-        final ItemStack clickedItem = e.getCurrentItem();
-
         // verify current item is not null
-        if (clickedItem == null || clickedItem.getType().isAir()) return;
+        if (clickedItem == null) return;
 
-        final Player p = (Player) e.getWhoClicked();
-
-        p.getInventory().addItem(clickedItem);
+        e.getWhoClicked().getInventory().addItem(clickedItem);
     }
 }

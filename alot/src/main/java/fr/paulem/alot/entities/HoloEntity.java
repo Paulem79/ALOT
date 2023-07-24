@@ -10,11 +10,10 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-
-import static fr.paulem.alot.ALOT.bukkitVersion;
 
 public class HoloEntity {
     public ALOT main;
@@ -27,13 +26,17 @@ public class HoloEntity {
 
     public HoloEntity(ALOT main, Location location, String text, @Nullable LivingEntity attached) {
         this.main = main;
-        if (bukkitVersion.minor() > 19 || (bukkitVersion.revision() == 4 && bukkitVersion.major() == 19)) {
+        if (ALOT.isDisplaySupported()) {
             this.hologram = Objects.requireNonNull(location.getWorld()).spawn(location, TextDisplay.class, (textDisplay) -> {
                 textDisplay.setText(text);
                 textDisplay.setBillboard(Display.Billboard.CENTER);
-                textDisplay.getPersistentDataContainer().set(main.hologramKey, PersistentDataType.INTEGER, 1);
-                if (attached != null)
-                    textDisplay.getPersistentDataContainer().set(main.healthbarKey, PersistentDataType.STRING, attached.getUniqueId().toString());
+                textDisplay.getPersistentDataContainer().set(ALOT.hologramKey, PersistentDataType.INTEGER, 1);
+                if (attached != null) {
+                    textDisplay.getPersistentDataContainer().set(ALOT.healthbarKey, PersistentDataType.STRING, attached.getUniqueId().toString());
+                    Transformation transformation = textDisplay.getTransformation();
+                    transformation.getTranslation().add(0f, (float) (attached.getHeight() / 2), 0f);
+                    textDisplay.setTransformation(transformation);
+                }
             });
         } else {
             this.hologram = Objects.requireNonNull(location.getWorld()).spawn(location, ArmorStand.class, (stand) -> {
@@ -43,24 +46,28 @@ public class HoloEntity {
                 stand.setMarker(true);
                 stand.setCustomNameVisible(true);
                 stand.setCustomName(text);
-                stand.getPersistentDataContainer().set(main.hologramKey, PersistentDataType.INTEGER, 1);
-                if (attached != null)
-                    stand.getPersistentDataContainer().set(main.healthbarKey, PersistentDataType.STRING, attached.getUniqueId().toString());
+                stand.getPersistentDataContainer().set(ALOT.hologramKey, PersistentDataType.INTEGER, 1);
+                if (attached != null) {
+                    stand.getPersistentDataContainer().set(ALOT.healthbarKey, PersistentDataType.STRING, attached.getUniqueId().toString());
+                }
             });
         }
         this.attached = attached;
     }
 
-    public void deleteAfter(long ticks) {
-        deleteAfter(ticks, null);
+    public BukkitTask deleteAfter(long ticks) {
+        return deleteAfter(ticks, null);
     }
 
-    public void deleteAfter(long ticks, @Nullable BukkitTask task) {
-        new BukkitRunnable() {
+    public BukkitTask deleteAfter(long ticks, @Nullable BukkitTask task) {
+        Runnable runnable = () -> {
+            hologram.remove();
+            if (task != null) task.cancel();
+        };
+        return new BukkitRunnable() {
             @Override
             public void run() {
-                hologram.remove();
-                if (task != null) task.cancel();
+                runnable.run();
             }
         }.runTaskLater(main, ticks);
     }

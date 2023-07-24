@@ -1,26 +1,22 @@
 package fr.paulem.alot.blocks;
 
 import fr.paulem.alot.ALOT;
+import fr.paulem.alot.item.items.TNTLandMine;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Transformation;
-import org.joml.AxisAngle4f;
-import org.joml.Vector3f;
 
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public class LandMine {
-
     public final ALOT main;
 
-    public BlockDisplay landMineEntity;
+    public ItemDisplay landMineEntity;
     public final Location locationLandMine;
 
     public LandMine(ALOT main, Location location, boolean passInit) {
@@ -29,16 +25,11 @@ public class LandMine {
         World world = location.getWorld();
         if (world == null) throw new NullPointerException("world is null");
 
-        world.spawn(location, BlockDisplay.class, (blockDisplay -> {
-            blockDisplay.setBlock(Stream.iterate(location.getBlock(), block -> !block.getType().isSolid(), block -> block.getLocation().subtract(0, 1, 0).getBlock())
-                    .findFirst()
-                    .orElse(location.getBlock())
-                    .getBlockData());
-            blockDisplay.setTransformation(new Transformation(new Vector3f(0, 0, 0), new AxisAngle4f(0, 0, 0, 0), new Vector3f(0.15f, 0.1f, 0.15f), new AxisAngle4f(0, 0, 0, 0)));
-            blockDisplay.setInvulnerable(true);
-            blockDisplay.setPersistent(true);
-            blockDisplay.getPersistentDataContainer().set(new NamespacedKey(this.main, "landmine"), PersistentDataType.INTEGER, 1);
-            landMineEntity = blockDisplay;
+        landMineEntity = world.spawn(location, ItemDisplay.class, (itemDisplay -> {
+            itemDisplay.setItemStack(new TNTLandMine(main).item());
+            itemDisplay.setInvulnerable(true);
+            itemDisplay.setPersistent(true);
+            itemDisplay.getPersistentDataContainer().set(new NamespacedKey(this.main, "landmine"), PersistentDataType.INTEGER, 1);
 
             if (passInit) LandMine.this.main.landMines.add(LandMine.this);
             else {
@@ -67,22 +58,26 @@ public class LandMine {
         }));
     }
 
-    public static LandMine newLandMine(ALOT main, BlockDisplay blockDisplay){
-        blockDisplay.remove();
-        return new LandMine(main, blockDisplay.getLocation(), true);
+    public static LandMine newLandMine(ALOT main, ItemDisplay itemDisplay) {
+        return newLandMine(main, itemDisplay, true);
     }
 
-    public void explose(){
-        this.getLandMineEntity().remove();
-        Objects.requireNonNull(this.getLocationLandMine().getWorld()).createExplosion(this.getLocationLandMine(), 8F);
-        this.main.landMines.remove(this);
+    public static LandMine newLandMine(ALOT main, ItemDisplay itemDisplay, boolean passInit) {
+        itemDisplay.remove();
+        return new LandMine(main, itemDisplay.getLocation(), passInit);
+    }
+
+    public void explose() {
+        getLandMineEntity().remove();
+        Objects.requireNonNull(getLocationLandMine().getWorld()).createExplosion(getLocationLandMine(), 8F);
+        main.landMines.remove(this);
     }
 
     public Location getLocationLandMine() {
         return locationLandMine;
     }
 
-    public BlockDisplay getLandMineEntity() {
+    public ItemDisplay getLandMineEntity() {
         return landMineEntity;
     }
 }

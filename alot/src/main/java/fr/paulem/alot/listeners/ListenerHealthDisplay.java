@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 import java.util.Objects;
 
 import static fr.paulem.api.functions.LibOther.RandomBtw;
@@ -38,27 +37,20 @@ public class ListenerHealthDisplay extends CListener {
                 ChatColor.RED + Long.toString(Math.round(finalDamage > entity.getHealth() ? entity.getHealth() : finalDamage)))
                 .deleteAfter(20L * 2);
 
-        List<Entity> holoEntities = LibRadius.getEntitiesInAllWorlds().filter(e -> Objects.equals(e.getPersistentDataContainer().get(main.healthbarKey, PersistentDataType.STRING), entity.getUniqueId().toString())).toList();
-        for (Entity holo : holoEntities) {
-            holo.remove();
-        }
+        LibRadius.getEntitiesInAllWorlds()
+                .filter(e -> e.getPersistentDataContainer().has(ALOT.healthbarKey, PersistentDataType.STRING) && Objects.equals(e.getPersistentDataContainer().get(main.healthbarKey, PersistentDataType.STRING), entity.getUniqueId().toString()))
+                .forEach(Entity::remove);
 
         new BukkitRunnable() {
             @Override
             public void run() {
-                Location location = entity.getLocation().clone();
-                location.setY(entity.getHeight() + entity.getLocation().getY() + .2);
+                Location location = entity.getLocation().clone().add(0, entity.getHeight() / 2, 0);
 
                 HoloEntity holoEntity = new HoloEntity(main, location, healthText(entity), entity);
-                holoEntity.deleteAfter(20L * 5, new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (entity.isDead()) holoEntity.hologram.remove();
-                        Location location = entity.getLocation().clone();
-                        location.setY(entity.getHeight() + entity.getLocation().getY() + .2);
-                        holoEntity.hologram.teleport(location);
-                    }
-                }.runTaskTimer(main, 1, 1));
+
+                entity.addPassenger(holoEntity.hologram);
+
+                holoEntity.deleteAfter(20L * 5);
             }
         }.runTask(main);
     }
@@ -76,9 +68,7 @@ public class ListenerHealthDisplay extends CListener {
 
         StringBuilder healthDisplay = new StringBuilder();
         BigDecimal bigDecimal = null;
-        if (lifeStyle.getAmount() != 2) {
-            bigDecimal = BigDecimal.valueOf(size).setScale(scale, RoundingMode.HALF_UP);
-        }
+        if (lifeStyle.getAmount() != 2) bigDecimal = BigDecimal.valueOf(size).setScale(scale, RoundingMode.HALF_UP);
         if (lifeStyle == LifeStyle.MULTIPLE) {
             if (size > 10) return healthText(entity, LifeStyle.TEN);
             else {
@@ -90,7 +80,7 @@ public class ListenerHealthDisplay extends CListener {
                 else healthDisplay.append(lifeStyle.getStyle());
             }
         } else healthDisplay.append(lifeStyle.getStyle());
-        return " " + lifeStyle.getColor().getColor() + (bigDecimal != null ? bigDecimal : "") + healthDisplay;
+        return String.valueOf(lifeStyle.getColor().getColor()) + (bigDecimal != null ? bigDecimal : "") + healthDisplay;
     }
 
     @EventHandler

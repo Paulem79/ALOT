@@ -21,9 +21,10 @@ public class TNTLandMine extends CustomItem {
 
     @Override
     public ItemStack item() {
-        ItemStack item = new ItemStack(Material.TNT, 1);
+        ItemStack item = new ItemStack(Material.DIRT, 1);
         ItemMeta im = item.getItemMeta();
         assert im != null;
+        im.setCustomModelData(1);
         im.setDisplayName(ChatColor.RED + "Landmine");
         im.setLocalizedName("landmine");
 

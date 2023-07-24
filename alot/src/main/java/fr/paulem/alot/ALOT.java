@@ -7,24 +7,26 @@ import fr.paulem.alot.gui.GUIAddedItems;
 import fr.paulem.alot.item.Handler;
 import fr.paulem.alot.listeners.ListenerBlood;
 import fr.paulem.alot.listeners.ListenerHealthDisplay;
-import fr.paulem.alot.listeners.ListenerItemSwap;
+import fr.paulem.alot.listeners.ListenerItems;
 import fr.paulem.alot.listeners.ListenerPloof;
 import fr.paulem.api.classes.CondensedCraft;
 import fr.paulem.api.enums.VersionMethod;
 import fr.paulem.api.functions.LibRadius;
 import fr.paulem.api.radios.LibVersion;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
@@ -65,25 +67,46 @@ import static fr.paulem.api.radios.LibVersion.getVersion;
 import static fr.paulem.paperapi.PaperAPI.initPaper;
 
 public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
+    public static final LibVersion serverVersion = getVersion(VersionMethod.SERVER);
     public static final LibVersion bukkitVersion = getVersion(VersionMethod.BUKKIT);
-    public static LibVersion serverVersion = getVersion(VersionMethod.SERVER);
+    public static ALOT instance;
     public final List<String> ALOT_SUBCOMMANDS = new ArrayList<>(Arrays.asList("give", "reload", "inventory"));
     public final List<LandMine> landMines = new ArrayList<>();
     public final HashMap<NamespacedKey, ItemStack> registeredItems = new HashMap<>();
     public final List<CondensedCraft> registeredRecipes = new ArrayList<>(); // ItemStack + Recipes
     public final HashMap<Player, BukkitTask> playersRecipesTasks = new HashMap<>();
-    public final NamespacedKey hologramKey = new NamespacedKey(this, "hologram");
-    public final NamespacedKey healthbarKey = new NamespacedKey(this, "healthbar");
-    public FileConfiguration config;
+    public static NamespacedKey hologramKey;
+    public static NamespacedKey healthbarKey;
+    public static NamespacedKey customBlockKey;
+    public static FileConfiguration config;
+
+    public static boolean isDisplaySupported() {
+        return bukkitVersion.minor() >= 20 || (bukkitVersion.minor() == 19 && bukkitVersion.revision() == 4);
+    }
+
+    public static ALOT getInstance() {
+        return instance;
+    }
 
     @Override
     public void onEnable() {
+        config = getConfig();
+        instance = this;
+        hologramKey = new NamespacedKey(this, "hologram");
+        healthbarKey = new NamespacedKey(this, "healthbar");
+        customBlockKey = new NamespacedKey(this, "customblock");
+
+        Metrics metrics = new Metrics(this, 19149);
+
+        if (!serverVersion.equals(bukkitVersion))
+            getLogger().warning("serverVersion and bukkitVersion aren't equals ! That is weird, plugin may not work correctly");
+
         reloadConfig();
         registerEvents(this, new ListenerPloof(this));
         registerEvents(this, new ListenerHealthDisplay(this));
         registerEvents(this, new ListenerBlood(this));
         registerEvents(this, new GUIAddedItems(this));
-        registerEvents(this, new ListenerItemSwap(this));
+        registerEvents(this, new ListenerItems(this));
         registerEvents(this, this);
 
         initPaper(this);
@@ -91,16 +114,22 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
         Objects.requireNonNull(getCommand("alot")).setExecutor(new CommandALOT(this));
         Objects.requireNonNull(getCommand("alot")).setTabCompleter(new TabCommandALOT(this));
 
-        for (Entity textDisplay : LibRadius.getEntitiesInAllWorlds(txt -> (txt instanceof ArmorStand || txt instanceof TextDisplay) && txt.getPersistentDataContainer().has(hologramKey, PersistentDataType.INTEGER))
-                .toList()) {
-            textDisplay.remove();
-        }
+        if (isDisplaySupported())
+            for (ItemDisplay itemDisplay : LibRadius.getEntitiesInAllWorlds(ent -> ent instanceof ItemDisplay && ent.getPersistentDataContainer().has(new NamespacedKey(this, "itemOnBack"), PersistentDataType.INTEGER) && ent.getPersistentDataContainer().has(new NamespacedKey(this, "attachedPlayer"), PersistentDataType.STRING), it -> (ItemDisplay) it).toList()) {
+                itemDisplay.remove();
+            }
+
+        if (isDisplaySupported())
+            for (Entity textDisplay : LibRadius.getEntitiesInAllWorlds(txt -> (txt instanceof ArmorStand || txt instanceof TextDisplay) && txt.getPersistentDataContainer().has(hologramKey, PersistentDataType.INTEGER))
+                    .toList()) {
+                textDisplay.remove();
+            }
 
         if (bukkitVersion.minor() >= 14) new Handler(this);
 
-        if (bukkitVersion.minor() >= 19) landMines.addAll(LibRadius.getEntitiesInAllWorlds(
-                        e -> e instanceof BlockDisplay blockDisplay && blockDisplay.getPersistentDataContainer().has(new NamespacedKey(ALOT.this, "landmine"), PersistentDataType.INTEGER),
-                        e -> newLandMine(this, (BlockDisplay) e))
+        if (isDisplaySupported()) landMines.addAll(LibRadius.getEntitiesInAllWorlds(
+                        e -> e instanceof ItemDisplay itemDisplay && itemDisplay.getPersistentDataContainer().has(new NamespacedKey(ALOT.this, "landmine"), PersistentDataType.INTEGER),
+                        e -> newLandMine(this, (ItemDisplay) e))
                 .toList()
         );
 
@@ -108,44 +137,56 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
             checkRecipe(player);
         }
 
-        if (bukkitVersion.minor() >= 19) new BukkitRunnable() {
+        if (isDisplaySupported()) new BukkitRunnable() {
             @Override
             public void run() {
                 try {
                     if (!landMines.isEmpty()) for (LandMine landMine : landMines) {
-                        if (LibRadius.getEntitiesAroundLocation(landMine.getLocationLandMine(), .5, 1, .5).stream().filter(e -> !(e instanceof BlockDisplay)).toList().size() > 0) {
+                        if (landMine.getLandMineEntity().isDead()) landMines.remove(landMine);
+                        if (LibRadius.getEntitiesAroundLocation(landMine.getLocationLandMine(), .5, 1, .5).stream().filter(e -> !(e instanceof ItemDisplay)).toList().size() > 0)
                             landMine.explose();
-                        }
                     }
                 } catch (ConcurrentModificationException ignored) {
-
                 }
             }
         }.runTaskTimer(this, 1L, 5L);
+
+        if (isDisplaySupported()) new BukkitRunnable() {
+            @Override
+            public void run() {
+                LibRadius.getEntitiesInAllWorlds(
+                        ent -> ent instanceof ItemDisplay && ent.getPersistentDataContainer().has(customBlockKey, PersistentDataType.INTEGER) && ent.getLocation().getBlock().isEmpty(),
+                        it -> {
+                            it.remove();
+                            return (ItemDisplay) it;
+                        }
+                );
+            }
+        }.runTaskTimer(this, 1L, 1L);
 
         getLogger().info("Plugin activated !");
     }
 
     @Override
-    public void onDisable(){
+    public void onDisable() {
         getLogger().info("Plugin deactivated !");
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e){
+    public void onPlayerJoin(PlayerJoinEvent e) {
         checkRecipe(e.getPlayer());
     }
 
     @EventHandler
-    public void onPlayerLeave(PlayerQuitEvent e){
-        if(playersRecipesTasks.containsKey(e.getPlayer())) playersRecipesTasks.get(e.getPlayer()).cancel();
+    public void onPlayerLeave(PlayerQuitEvent e) {
+        if (playersRecipesTasks.containsKey(e.getPlayer())) playersRecipesTasks.get(e.getPlayer()).cancel();
     }
 
     @SuppressWarnings("all")
     @EventHandler
-    public void onAttack(EntityDamageByEntityEvent e){
-        if(!(e.getDamager() instanceof Arrow arrow)) return;
-        if(arrow.getPersistentDataContainer().has(new NamespacedKey(this, "switch_bow"), PersistentDataType.INTEGER)) {
+    public void onAttack(EntityDamageByEntityEvent e) {
+        if (!(e.getDamager() instanceof Arrow arrow)) return;
+        if (arrow.getPersistentDataContainer().has(new NamespacedKey(this, "switch_bow"), PersistentDataType.INTEGER)) {
             if (!(arrow.getShooter() instanceof LivingEntity shooter)) return;
             if (!(e.getEntity() instanceof LivingEntity shooted)) return;
             Location shooterLoc = shooter.getLocation();
@@ -179,14 +220,18 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onLandMinePlaceByUsingInteract(PlayerInteractEvent e){
-        if(e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        Block clickedBlock = e.getClickedBlock();
-        if(clickedBlock == null || clickedBlock.isEmpty() || !clickedBlock.getLocation().add(0, 1, 0).getBlock().isEmpty()) return;
+    public void onLandMinePlaceByUsingInteract(PlayerInteractEvent e) {
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         ItemStack landMine = e.getItem();
-        if(landMine == null || landMine.getItemMeta() == null) return;
-        if(!landMine.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(this, "landmine"), PersistentDataType.INTEGER)) return;
-        new LandMine(this, clickedBlock.getLocation().add(0, 1, 0), false);
+        if (landMine == null || landMine.getItemMeta() == null) return;
+        if (!landMine.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(this, "landmine"), PersistentDataType.INTEGER))
+            return;
+        Block clickedBlock = e.getClickedBlock();
+        if (clickedBlock == null || clickedBlock.isEmpty() || !clickedBlock.getRelative(BlockFace.UP).isEmpty()) {
+            e.setCancelled(true);
+            return;
+        }
+        new LandMine(this, clickedBlock.getLocation().add(.5, 1.5, .5), false);
         consumeUsage(e.getPlayer().getInventory(), landMine, 1);
         e.setCancelled(true);
     }
@@ -216,14 +261,5 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
             };
             playersRecipesTasks.put(player, task.runTaskTimer(this, 10L, 10L));
         }
-    }
-
-    public void reloadConfig() {
-        super.reloadConfig();
-
-        saveDefaultConfig();
-        config = getConfig();
-        config.options().copyDefaults(true);
-        saveConfig();
     }
 }
