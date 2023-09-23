@@ -14,8 +14,8 @@
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.19.4-R0.1-SNAPSHOT</version>
+            <artifactId>spigot-api</artifactId>
+            <version>1.20.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -33,16 +33,86 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>fr.paulem.nmsgate</groupId>
+            <artifactId>nmsgate</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>fr.paulem.nms_v17_1</groupId>
+            <artifactId>nms_v17_1</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>fr.paulem.nms_v18_2</groupId>
+            <artifactId>nms_v18_2</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>fr.paulem.nms_v19_4</groupId>
+            <artifactId>nms_v19_4</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>fr.paulem.nms_v20_1</groupId>
+            <artifactId>nms_v20_1</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>3.0.2</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.jeff_media</groupId>
+            <artifactId>CustomBlockData</artifactId>
+            <version>2.2.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
-        <directory>../target</directory> <!-- Build it one level up, because it is the one we care about -->
         <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>auto-clean</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                    <directory>C:/Users/Mon PC/Desktop/ALOT-maven/target</directory>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <outputDirectory>../target</outputDirectory>
+                    <finalName>alot</finalName>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -53,6 +123,10 @@
                             <pattern>org.bstats</pattern>
                             <!-- Replace this with your package! -->
                             <shadedPattern>fr.paulem.external.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.jeff_media.customblockdata</pattern>
+                            <shadedPattern>fr.paulem.external.customblockdata</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

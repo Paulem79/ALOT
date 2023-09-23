@@ -11,7 +11,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +28,6 @@ public class ListenerHealthDisplay extends CListener {
 
     public static void healthBar(ALOT main, LivingEntity entity, boolean playerNear, @Nullable Double finalDamage) {
         if (!playerNear) return;
-        if (entity instanceof Player) return;
 
         //Afficher les dégâts
         if (finalDamage != null && finalDamage > 0) new HoloEntity(main,
@@ -37,8 +35,7 @@ public class ListenerHealthDisplay extends CListener {
                 ChatColor.RED + Long.toString(Math.round(finalDamage > entity.getHealth() ? entity.getHealth() : finalDamage)))
                 .deleteAfter(20L * 2);
 
-        LibRadius.getEntitiesInAllWorlds()
-                .filter(e -> e.getPersistentDataContainer().has(ALOT.healthbarKey, PersistentDataType.STRING) && Objects.equals(e.getPersistentDataContainer().get(main.healthbarKey, PersistentDataType.STRING), entity.getUniqueId().toString()))
+        LibRadius.getEntitiesInAllWorlds(e -> e.getPersistentDataContainer().has(ALOT.healthbarKey, PersistentDataType.STRING) && Objects.equals(e.getPersistentDataContainer().get(ALOT.healthbarKey, PersistentDataType.STRING), entity.getUniqueId().toString()))
                 .forEach(Entity::remove);
 
         new BukkitRunnable() {
@@ -83,14 +80,7 @@ public class ListenerHealthDisplay extends CListener {
         return String.valueOf(lifeStyle.getColor().getColor()) + (bigDecimal != null ? bigDecimal : "") + healthDisplay;
     }
 
-    @EventHandler
-    public void onSpawn(EntitySpawnEvent e) {
-        if (e.getEntity() instanceof LivingEntity entity) {
-            healthBar(main, entity, false, null);
-        }
-    }
-
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onAttack(EntityDamageByEntityEvent e) {
         if (e.getEntity() instanceof LivingEntity entity) {
             // L'entité est attaquée par un joueur, montrer la barre de vie

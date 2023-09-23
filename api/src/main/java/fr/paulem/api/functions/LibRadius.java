@@ -17,19 +17,23 @@ import java.util.stream.Stream;
 
 public class LibRadius {
     public static Collection<Block> getBlocksInRadius(Location location, int radius) {
+        return getBlocksInRadius(location, radius, radius, radius);
+    }
+
+    public static Collection<Block> getBlocksInRadius(Location location, int radiusx, int radiusy, int radiusz) {
         Collection<Block> blockList = new ArrayList<>();
         // Récupérer les informations du joueur
         World world = location.getWorld();
         if(world == null) throw new IllegalArgumentException("Location must contain a world");
 
         // Calculer les limites du rayon autour du joueur
-        int minX = location.getBlockX() - radius;
-        int minY = location.getBlockY() - radius;
-        int minZ = location.getBlockZ() - radius;
+        int minX = location.getBlockX() - radiusx;
+        int minY = location.getBlockY() - radiusy;
+        int minZ = location.getBlockZ() - radiusz;
 
-        int maxX = location.getBlockX() + radius;
-        int maxY = location.getBlockY() + radius;
-        int maxZ = location.getBlockZ() + radius;
+        int maxX = location.getBlockX() + radiusx;
+        int maxY = location.getBlockY() + radiusy;
+        int maxZ = location.getBlockZ() + radiusz;
 
         // Parcourir chaque bloc dans le rayon
         for (int x = minX; x <= maxX; x++) {

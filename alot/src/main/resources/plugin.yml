@@ -4,9 +4,8 @@ version: 1.0
 author: Paulem
 website: https://linktr.ee/paulem
 description: A Lot Of Things
+#1.17.1-1.20+
 api-version: 1.17
-softdepend:
-  - ProtocolLib
 commands:
   alot:
     description: ALOT's commands

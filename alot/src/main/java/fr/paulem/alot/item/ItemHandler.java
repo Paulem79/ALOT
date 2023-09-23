@@ -11,8 +11,8 @@ import org.bukkit.inventory.ShapedRecipe;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Handler extends CMain {
-    public Handler(ALOT main) {
+public class ItemHandler extends CMain {
+    public ItemHandler(ALOT main) {
         super(main);
         for(CondensedCraft condensedCraft : init()){
             for(ShapedRecipe recipe : condensedCraft.getRecipes()) {

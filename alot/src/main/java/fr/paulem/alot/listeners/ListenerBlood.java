@@ -26,7 +26,7 @@ public class ListenerBlood extends CListener {
         super(main);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onHit(EntityDamageEvent e){
         if(!(e.getEntity() instanceof LivingEntity entity) || !isTherePlayerNearby(e.getEntity())) return;
         if(ALOT.bukkitVersion.minor() < 13) return;

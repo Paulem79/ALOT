@@ -1,6 +1,7 @@
 package fr.paulem.alot.entities;
 
 import fr.paulem.alot.ALOT;
+import fr.paulem.api.functions.LibOther;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Display;
@@ -26,7 +27,7 @@ public class HoloEntity {
 
     public HoloEntity(ALOT main, Location location, String text, @Nullable LivingEntity attached) {
         this.main = main;
-        if (ALOT.isDisplaySupported()) {
+        if (LibOther.isDisplaySupported()) {
             this.hologram = Objects.requireNonNull(location.getWorld()).spawn(location, TextDisplay.class, (textDisplay) -> {
                 textDisplay.setText(text);
                 textDisplay.setBillboard(Display.Billboard.CENTER);

@@ -12,6 +12,12 @@
         <module>alot</module>
         <module>api</module>
         <module>paperapi</module>
+        <module>nms_v17_1</module>
+        <module>nms_v18_2</module>
+        <module>nms_v19_4</module>
+        <module>nmsgate</module>
+        <module>nmsapi</module>
+        <module>nms_v20_1</module>
     </modules>
 
     <repositories>
@@ -26,6 +32,14 @@
         <repository>
             <id>paper-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>jeff-media-public</id>
+            <url>https://hub.jeff-media.com/nexus/repository/jeff-media-public/</url>
+        </repository>
+        <repository>
+            <id>dmulloy2-repo</id>
+            <url>https://repo.dmulloy2.net/repository/public/</url>
         </repository>
     </repositories>
 

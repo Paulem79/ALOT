@@ -1,4 +1,4 @@
-package fr.paulem.alot.blocks;
+package fr.paulem.alot.block;
 
 import fr.paulem.alot.ALOT;
 import org.bukkit.Location;
@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
-public class CustomBlock {
-    public CustomBlock(ItemStack itemStack, Location location, @Nullable Block block) {
+public class ItemDisplayCustomBlock {
+    public ItemDisplayCustomBlock(ItemStack itemStack, Location location, @Nullable Block block) {
         location = location.getBlock().getLocation();
         World world = location.getWorld();
         assert world != null;

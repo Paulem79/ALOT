@@ -1,5 +1,7 @@
 package fr.paulem.api.functions;
 
+import fr.paulem.api.enums.VersionMethod;
+import fr.paulem.api.radios.LibVersion;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,5 +31,10 @@ public class LibOther {
         plugin.saveConfig();
 
         return plugin.getConfig();
+    }
+
+    public static boolean isDisplaySupported() {
+        LibVersion bukkitVersion = LibVersion.getVersion(VersionMethod.BUKKIT);
+        return bukkitVersion.minor() >= 20 || (bukkitVersion.minor() == 19 && bukkitVersion.revision() == 4);
     }
 }

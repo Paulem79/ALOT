@@ -43,7 +43,11 @@ public record LibVersion(int major, int minor, int revision) {
 
             major = Integer.parseInt(parts[0]);
             minor = Integer.parseInt(parts[1]);
-            revision = Integer.parseInt(parts[2]);
+            try {
+                revision = Integer.parseInt(parts[2]);
+            } catch (NumberFormatException err) {
+                revision = 0;
+            }
         } else if (versionMethod == VersionMethod.SERVER) {
             String version = VersionMethod.SERVER.getVersion();
 
@@ -56,5 +60,10 @@ public record LibVersion(int major, int minor, int revision) {
             revision = Integer.parseInt(mcParts[2]);
         } else throw new IllegalArgumentException("Invalid VersionMethod enum value");
         return new LibVersion(major, minor, revision);
+    }
+
+    @Override
+    public String toString() {
+        return major() + "." + minor() + "." + revision();
     }
 }

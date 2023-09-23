@@ -2,9 +2,9 @@ package fr.paulem.alot.commands;
 
 import fr.paulem.alot.ALOT;
 import fr.paulem.alot.CMain;
-import fr.paulem.alot.blocks.CustomBlock;
-import fr.paulem.api.API;
+import fr.paulem.alot.block.ItemDisplayCustomBlock;
 import fr.paulem.api.functions.LibOther;
+import fr.paulem.nmsgate.NmsGate;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -67,12 +67,12 @@ public class CommandALOT extends CMain implements CommandExecutor {
             return true;
         } else if(sub.equalsIgnoreCase("test")){
             if(sender instanceof Player player){
-                API.LaunchItem(main, player.getInventory().getItemInMainHand(), player);
+                NmsGate.createHerobrine(main, player.getLocation());
             } else sender.sendMessage(ChatColor.RED + "You must be a player to use this command !");
             return true;
         } else if(sub.equalsIgnoreCase("tt")){
             if(sender instanceof Player player){
-                new CustomBlock(player.getInventory().getItemInMainHand(), player.getLocation(), player.getTargetBlockExact(16));
+                new ItemDisplayCustomBlock(player.getInventory().getItemInMainHand(), player.getLocation(), player.getTargetBlockExact(16));
             } else sender.sendMessage(ChatColor.RED + "You must be a player to use this command !");
             return true;
         }

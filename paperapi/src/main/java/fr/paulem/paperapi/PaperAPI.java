@@ -15,7 +15,7 @@ public class PaperAPI {
             PaperAPI.plugin = plugin;
             PaperAPI.enabled = isServerPaperBased();
             plugin.getLogger().info("Paper Integration enabled !");
-            //enable();
+            enable();
         } else {
             plugin.getLogger().info("Paper Integration not enabled !");
         }

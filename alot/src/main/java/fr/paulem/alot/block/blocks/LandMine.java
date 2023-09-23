@@ -1,4 +1,4 @@
-package fr.paulem.alot.blocks;
+package fr.paulem.alot.block.blocks;
 
 import fr.paulem.alot.ALOT;
 import fr.paulem.alot.item.items.TNTLandMine;
@@ -69,7 +69,7 @@ public class LandMine {
 
     public void explose() {
         getLandMineEntity().remove();
-        Objects.requireNonNull(getLocationLandMine().getWorld()).createExplosion(getLocationLandMine(), 8F);
+        Objects.requireNonNull(getLocationLandMine().getWorld()).createExplosion(getLocationLandMine(), 4F);
         main.landMines.remove(this);
     }
 
