@@ -10,6 +10,7 @@ import fr.paulem.nms_v19_4.Herobrine_1_19_4;
 import fr.paulem.nms_v19_4.Listeners_1_19_4;
 import fr.paulem.nms_v20_1.Herobrine_1_20_1;
 import fr.paulem.nms_v20_1.Listeners_1_20_1;
+import fr.paulem.nms_v20_2.Herobrine_1_20_2;
 import fr.paulem.nmsapi.IHerobrine;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -22,6 +23,7 @@ import java.util.Objects;
 public class NmsGate {
     public static @Nullable IHerobrine createHerobrine(JavaPlugin plugin, Location loc) {
         IHerobrine herobrine = switch (LibVersion.getVersion(VersionMethod.SERVER).toString()) {
+            case "1.20.2" -> Herobrine_1_20_2.createHerobrine(plugin, loc);
             case "1.20.1", "1.20.0" -> Herobrine_1_20_1.createHerobrine(plugin, loc);
             case "1.19.4", "1.19.3" -> Herobrine_1_19_4.createHerobrine(plugin, loc);
             case "1.18.2" -> Herobrine_1_18_2.createHerobrine(plugin, loc);

@@ -18,6 +18,7 @@
         <module>nmsgate</module>
         <module>nmsapi</module>
         <module>nms_v20_1</module>
+        <module>nms_v20_2</module>
     </modules>
 
     <repositories>
