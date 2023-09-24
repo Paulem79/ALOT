@@ -1,6 +1,7 @@
 name: ALOT
 main: fr.paulem.alot.ALOT
 version: 1.0
+load: STARTUP
 author: Paulem
 website: https://linktr.ee/paulem
 description: A Lot Of Things

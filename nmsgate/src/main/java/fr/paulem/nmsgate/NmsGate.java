@@ -2,18 +2,24 @@ package fr.paulem.nmsgate;
 
 import fr.paulem.api.enums.VersionMethod;
 import fr.paulem.api.radios.LibVersion;
+import fr.paulem.nms_v17_1.Biome_1_17_1;
 import fr.paulem.nms_v17_1.Herobrine_1_17_1;
 import fr.paulem.nms_v17_1.Listeners_1_17_1;
+import fr.paulem.nms_v18_2.BiomeFabric;
+import fr.paulem.nms_v18_2.Biome_1_18_2;
 import fr.paulem.nms_v18_2.Herobrine_1_18_2;
 import fr.paulem.nms_v18_2.Listeners_1_18_2;
+import fr.paulem.nms_v19_4.Biome_1_19_4;
 import fr.paulem.nms_v19_4.Herobrine_1_19_4;
 import fr.paulem.nms_v19_4.Listeners_1_19_4;
+import fr.paulem.nms_v20_1.Biome_1_20_1;
 import fr.paulem.nms_v20_1.Herobrine_1_20_1;
 import fr.paulem.nms_v20_1.Listeners_1_20_1;
+import fr.paulem.nms_v20_2.Biome_1_20_2;
 import fr.paulem.nms_v20_2.Herobrine_1_20_2;
-import fr.paulem.nmsapi.IHerobrine;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +27,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class NmsGate {
-    public static @Nullable IHerobrine createHerobrine(JavaPlugin plugin, Location loc) {
-        IHerobrine herobrine = switch (LibVersion.getVersion(VersionMethod.SERVER).toString()) {
+    public static @Nullable Player createHerobrine(JavaPlugin plugin, Location loc) {
+        Player herobrine = switch (LibVersion.getVersion(VersionMethod.SERVER).toString()) {
             case "1.20.2" -> Herobrine_1_20_2.createHerobrine(plugin, loc);
             case "1.20.1", "1.20.0" -> Herobrine_1_20_1.createHerobrine(plugin, loc);
             case "1.19.4", "1.19.3" -> Herobrine_1_19_4.createHerobrine(plugin, loc);
@@ -31,8 +37,12 @@ public class NmsGate {
             default -> null;
         };
         if (Bukkit.getScoreboardManager() != null && herobrine != null)
-            Objects.requireNonNull(Bukkit.getScoreboardManager().getMainScoreboard().getTeam("nhide")).addEntry(herobrine.getHerobrine().getName());
+            Objects.requireNonNull(Bukkit.getScoreboardManager().getMainScoreboard().getTeam("nhide")).addEntry(herobrine.getName());
         return herobrine;
+    }
+
+    public static void newBiome() {
+        BiomeFabric.gen();
     }
 
     public static @Nullable Listener nmsListeners(JavaPlugin plugin) {

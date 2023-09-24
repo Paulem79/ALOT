@@ -2,7 +2,6 @@ package fr.paulem.nms_v20_2;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import fr.paulem.nmsapi.IHerobrine;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
@@ -21,7 +20,6 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class Herobrine_1_20_2 extends ServerPlayer implements IHerobrine {
+public class Herobrine_1_20_2 extends ServerPlayer {
     private final Location loc;
     private final JavaPlugin plugin;
 
@@ -40,20 +38,7 @@ public class Herobrine_1_20_2 extends ServerPlayer implements IHerobrine {
         moveTo(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch()); // set location
     }
 
-    public static void spawnFor(Player p, Herobrine_1_20_2 herobrine) {
-        ServerGamePacketListenerImpl connection = ((CraftPlayer) p).getHandle().connection;
-
-        // add player in player list for player
-        connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, herobrine));
-        // change head rotation
-        connection.send(new ClientboundRotateHeadPacket(herobrine, (byte) ((herobrine.loc.getYaw() * 256f) / 360f)));
-        // add player to tab list
-        connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED, herobrine));
-        // here the entity is showed, you can show item in hand like that :
-        // connection.sendPacket(new PacketPlayOutEntityEquipment(getId(), 0, CraftItemStack.asNMSCopy(itemInHand)));
-    }
-
-    public static @Nullable IHerobrine createHerobrine(JavaPlugin plugin, Location loc) {
+    public static @Nullable Player createHerobrine(JavaPlugin plugin, Location loc) {
         if (loc.getWorld() == null) return null;
         // get NMS world
         ServerLevel nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
@@ -76,7 +61,7 @@ public class Herobrine_1_20_2 extends ServerPlayer implements IHerobrine {
         herobrine.getBukkitEntity().getPersistentDataContainer().set(new NamespacedKey(plugin, "fakePlayer"), PersistentDataType.INTEGER, 1);
         herobrine.spawn(); // spawn for actual online players
         // now you can keep the FakePlayer instance for next player or just to check
-        return herobrine;
+        return herobrine.getBukkitEntity().getPlayer();
     }
 
     public void spawn() {
@@ -96,18 +81,6 @@ public class Herobrine_1_20_2 extends ServerPlayer implements IHerobrine {
         connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED, this));
         // here the entity is showed, you can show item in hand like that :
         // connection.sendPacket(new PacketPlayOutEntityEquipment(getId(), 0, CraftItemStack.asNMSCopy(itemInHand)));
-    }
-
-    public void remove() {
-        this.kill();
-    }
-
-    public boolean isEntity(Entity et) {
-        return this.getId() == et.getEntityId(); // check if it's this entity
-    }
-
-    public Player getHerobrine() {
-        return this.getBukkitEntity().getPlayer();
     }
 
     @Override

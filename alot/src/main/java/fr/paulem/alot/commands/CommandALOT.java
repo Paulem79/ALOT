@@ -67,7 +67,7 @@ public class CommandALOT extends CMain implements CommandExecutor {
             return true;
         } else if(sub.equalsIgnoreCase("test")){
             if(sender instanceof Player player){
-                NmsGate.createHerobrine(main, player.getLocation());
+                //NmsGate.createHerobrine(main, player.getLocation());
             } else sender.sendMessage(ChatColor.RED + "You must be a player to use this command !");
             return true;
         } else if(sub.equalsIgnoreCase("tt")){

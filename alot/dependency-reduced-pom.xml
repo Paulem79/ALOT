@@ -9,66 +9,66 @@
   <artifactId>alot</artifactId>
   <build>
     <plugins>
-        <plugin>
-            <artifactId>maven-clean-plugin</artifactId>
-            <version>3.2.0</version>
-            <executions>
-                <execution>
-                    <id>auto-clean</id>
-                    <phase>initialize</phase>
-                    <goals>
-                        <goal>clean</goal>
-                    </goals>
-                    <configuration>
-                        <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                        <filesets>
-                            <fileset>
-                                <directory>C:/Users/Mon PC/Desktop/ALOT-maven/target</directory>
-                            </fileset>
-                        </filesets>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-        <plugin>
-            <artifactId>maven-jar-plugin</artifactId>
-            <version>3.3.0</version>
-            <configuration>
-                <outputDirectory>../target</outputDirectory>
-                <finalName>alot</finalName>
-            </configuration>
-        </plugin>
       <plugin>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>3.5.0</version>
-          <executions>
-              <execution>
-                  <phase>package</phase>
-                  <goals>
-                      <goal>shade</goal>
-                  </goals>
-              </execution>
-          </executions>
-          <configuration>
-              <relocations>
-                  <relocation>
-                      <pattern>org.bstats</pattern>
-                      <shadedPattern>fr.paulem.external.bstats</shadedPattern>
-                  </relocation>
-                  <relocation>
-                      <pattern>com.jeff_media.customblockdata</pattern>
-                      <shadedPattern>fr.paulem.external.customblockdata</shadedPattern>
-                  </relocation>
-              </relocations>
-          </configuration>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>auto-clean</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration>
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset>
+                  <directory>C:/Users/Mon PC/Desktop/ALOT-maven/target</directory>
+                </fileset>
+              </filesets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <outputDirectory>../target</outputDirectory>
+          <finalName>alot</finalName>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <relocations>
+            <relocation>
+              <pattern>org.bstats</pattern>
+              <shadedPattern>fr.paulem.external.bstats</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.jeff_media.customblockdata</pattern>
+              <shadedPattern>fr.paulem.external.customblockdata</shadedPattern>
+            </relocation>
+          </relocations>
+        </configuration>
       </plugin>
     </plugins>
   </build>
   <dependencies>
     <dependency>
       <groupId>org.spigotmc</groupId>
-        <artifactId>spigot-api</artifactId>
-        <version>1.20.1-R0.1-SNAPSHOT</version>
+      <artifactId>spigot-api</artifactId>
+      <version>1.20.2-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

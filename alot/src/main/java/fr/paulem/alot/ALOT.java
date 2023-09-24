@@ -114,6 +114,8 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
         healthbarKey = new NamespacedKey(this, "healthbar");
         customBlockKey = new NamespacedKey(this, "customblock");
 
+        NmsGate.newBiome();
+
         registerNametagInvisibleTeam();
 
         Metrics metrics = new Metrics(this, 19149);
@@ -211,12 +213,16 @@ public class ALOT extends JavaPlugin implements CommandExecutor, Listener {
     }
 
     public void registerNametagInvisibleTeam() {
-        if (firstWorldLoaded) return;
-        Team isPresent = Objects.requireNonNull(Bukkit.getScoreboardManager()).getMainScoreboard().getTeam("nhide");
-        if (isPresent != null) return;
-        Team t = Objects.requireNonNull(Bukkit.getScoreboardManager()).getMainScoreboard().registerNewTeam("nhide");
-        t.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
-        firstWorldLoaded = Bukkit.getScoreboardManager() != null;
+        try {
+            if (firstWorldLoaded) return;
+            Team isPresent = Objects.requireNonNull(Bukkit.getScoreboardManager()).getMainScoreboard().getTeam("nhide");
+            if (isPresent != null) return;
+            Team t = Objects.requireNonNull(Bukkit.getScoreboardManager()).getMainScoreboard().registerNewTeam("nhide");
+            t.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+            firstWorldLoaded = Bukkit.getScoreboardManager() != null;
+        } catch(NullPointerException exception){
+            getLogger().severe("Error while registering scoreboard");
+        }
     }
 
     @SuppressWarnings("all")

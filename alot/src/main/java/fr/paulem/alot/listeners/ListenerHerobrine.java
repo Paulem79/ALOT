@@ -3,7 +3,6 @@ package fr.paulem.alot.listeners;
 import fr.paulem.alot.ALOT;
 import fr.paulem.alot.CListener;
 import fr.paulem.api.functions.LibRadius;
-import fr.paulem.nmsapi.IHerobrine;
 import fr.paulem.nmsgate.NmsGate;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -30,7 +29,7 @@ public class ListenerHerobrine extends CListener {
         super(main);
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         List<Material> herobrineStructure = List.of(Material.GOLD_BLOCK, Material.NETHERRACK, Material.FIRE, Material.REDSTONE_TORCH);
         if (!herobrineStructure.contains(e.getBlock().getType())) return;
@@ -48,25 +47,25 @@ public class ListenerHerobrine extends CListener {
                     herobrineSpawn.getRelative(BlockFace.DOWN, 2).getType() == Material.GOLD_BLOCK &&
                     LibRadius.getBlocksInRadius(herobrineSpawn.getRelative(BlockFace.DOWN, 2).getLocation(), 1, 0, 1).stream().filter(block -> block.getType() == Material.GOLD_BLOCK).count() == 9) {
                 Location herobrineSpawnLocation = herobrineSpawn.getLocation().add(.5, 0, .5);
-                IHerobrine herobrine = NmsGate.createHerobrine(main, herobrineSpawnLocation);
+                Player herobrine = NmsGate.createHerobrine(main, herobrineSpawnLocation);
                 assert herobrine != null;
-                PlayerJoinEvent event = new PlayerJoinEvent(herobrine.getHerobrine(), ChatColor.YELLOW + herobrine.getHerobrine().getName() + " joined the game");
+                PlayerJoinEvent event = new PlayerJoinEvent(herobrine, ChatColor.YELLOW + herobrine.getName() + " joined the game");
                 Bukkit.getPluginManager().callEvent(event);
                 String message = event.getJoinMessage();
                 if (message != null) Bukkit.broadcastMessage(event.getJoinMessage());
                 e.getBlock().getWorld().spawn(herobrineSpawnLocation, LightningStrike.class);
 
-                BukkitTask task = new BukkitRunnable() {
+                new BukkitRunnable() {
                     @Override
                     public void run() {
-                        herobrine.getHerobrine().teleport(herobrine.getHerobrine().getLocation().setDirection(e.getPlayer().getLocation().subtract(herobrine.getHerobrine().getLocation()).toVector()));
+                        herobrine.teleport(herobrine.getLocation().setDirection(e.getPlayer().getLocation().subtract(herobrine.getLocation()).toVector()));
                     }
                 }.runTaskTimer(main, 1L, 1L);
 
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        herobrine.getHerobrine().chat("Thanks");
+                        herobrine.chat("Thanks");
                     }
                 }.runTaskLater(main, 20L);
 
@@ -85,7 +84,7 @@ public class ListenerHerobrine extends CListener {
                 }.runTaskLater(main, 20L * 3);
             }
         }
-    }
+    }*/
 
     @EventHandler
     public void onHerobrineHit(EntityDamageEvent e) {
